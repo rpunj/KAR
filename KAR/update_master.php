@@ -3,12 +3,12 @@
 	//DO NOT BREAK THIS FILE.
 	print "Attemping to pull from origin/master.<BR />";
 	
-	system("git pull origin master", $output);
+	exec("dir", $output, $flag);
 	
-	if ($output == null) {
+	if (!$flag) {
 		print "There was an error pulling from origin/master. Contact Ravi.";
 	} else {
-		print $output;
+		echo $output;
 	}
 
 ?>
