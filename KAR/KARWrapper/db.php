@@ -31,7 +31,23 @@ class Database
 	}
 }
 
+abstract class DBObject{
+	protected $db;
+
+	public abstract function get_all();
+}
+
+abstract class DBRow{
+	protected $row_id;
+}
+
 class DBConnectionException extends Exception {
+	function __toString(){
+		return __CLASS__.": [{$this->code}]: {$this->message}\n";
+	}
+}
+
+class DBRuntimeException extends Exception {
 	function __toString(){
 		return __CLASS__.": [{$this->code}]: {$this->message}\n";
 	}
