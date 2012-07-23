@@ -2,7 +2,6 @@ SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL';
 
-DROP SCHEMA IF EXISTS `kar` ;
 CREATE SCHEMA IF NOT EXISTS `kar` DEFAULT CHARACTER SET latin1 ;
 USE `kar` ;
 
@@ -23,30 +22,6 @@ CREATE  TABLE IF NOT EXISTS `kar`.`affiliate` (
   CONSTRAINT `fk_affiliate_address1`
     FOREIGN KEY (`affiliate_address` )
     REFERENCES `kar`.`address` (`address_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `kar`.`carpool`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `kar`.`carpool` ;
-
-CREATE  TABLE IF NOT EXISTS `kar`.`carpool` (
-  `carpool_id` INT NOT NULL ,
-  `carpool_start_subzone` INT NOT NULL ,
-  `carpool_end_subzone` INT NOT NULL ,
-  `carpool_members` VARCHAR(100) NOT NULL ,
-  `carpool_member_count` INT NOT NULL ,
-  `carpool_morning_time` INT NOT NULL ,
-  `carpool_evening_time` INT NOT NULL ,
-  `carpool_driver` INT NULL ,
-  PRIMARY KEY (`carpool_id`) ,
-  INDEX `fk_carpool_user1` (`carpool_driver` ASC) ,
-  CONSTRAINT `fk_carpool_user1`
-    FOREIGN KEY (`carpool_driver` )
-    REFERENCES `kar`.`user` (`user_id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -94,6 +69,54 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
+-- Table `kar`.`carpool`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `kar`.`carpool` ;
+
+CREATE  TABLE IF NOT EXISTS `kar`.`carpool` (
+  `carpool_id` INT NOT NULL ,
+  `carpool_start_subzone` INT NOT NULL ,
+  `carpool_end_subzone` INT NOT NULL ,
+  `carpool_member_count` INT NOT NULL ,
+  `carpool_morning_time` INT NOT NULL ,
+  `carpool_evening_time` INT NOT NULL ,
+  `carpool_driver` INT NULL ,
+  PRIMARY KEY (`carpool_id`) ,
+  INDEX `fk_carpool_carpool_item1` (`carpool_driver` ASC) ,
+  CONSTRAINT `fk_carpool_carpool_item1`
+    FOREIGN KEY (`carpool_driver` )
+    REFERENCES `kar`.`carpool_item` (`carpool_item_id` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `kar`.`carpool_item`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `kar`.`carpool_item` ;
+
+CREATE  TABLE IF NOT EXISTS `kar`.`carpool_item` (
+  `carpool_item_id` INT NOT NULL ,
+  `carpool_id` INT NOT NULL ,
+  `carpool_user` INT NOT NULL ,
+  PRIMARY KEY (`carpool_item_id`, `carpool_id`) ,
+  INDEX `fk_carpool_item_carpool1` (`carpool_id` ASC) ,
+  INDEX `fk_carpool_item_user1` (`carpool_user` ASC) ,
+  CONSTRAINT `fk_carpool_item_carpool1`
+    FOREIGN KEY (`carpool_id` )
+    REFERENCES `kar`.`carpool` (`carpool_id` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_carpool_item_user1`
+    FOREIGN KEY (`carpool_user` )
+    REFERENCES `kar`.`user` (`user_id` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
 -- Table `kar`.`user`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `kar`.`user` ;
@@ -119,8 +142,8 @@ CREATE  TABLE IF NOT EXISTS `kar`.`user` (
   INDEX `fk_user_address1` (`user_home_address` ASC) ,
   INDEX `fk_user_address2` (`user_dest_address` ASC) ,
   INDEX `fk_user_affiliate1` (`user_affliate` ASC) ,
-  INDEX `fk_user_carpool1` (`user_carpool_id` ASC) ,
   INDEX `fk_user_search1` (`user_default_search` ASC) ,
+  INDEX `fk_user_carpool_item1` (`user_carpool_id` ASC) ,
   CONSTRAINT `fk_user_address1`
     FOREIGN KEY (`user_home_address` )
     REFERENCES `kar`.`address` (`address_id` )
@@ -136,14 +159,14 @@ CREATE  TABLE IF NOT EXISTS `kar`.`user` (
     REFERENCES `kar`.`affiliate` (`affiliate_id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_user_carpool1`
-    FOREIGN KEY (`user_carpool_id` )
-    REFERENCES `kar`.`carpool` (`carpool_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
   CONSTRAINT `fk_user_search1`
     FOREIGN KEY (`user_default_search` )
     REFERENCES `kar`.`search` (`search_id` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_user_carpool_item1`
+    FOREIGN KEY (`user_carpool_id` )
+    REFERENCES `kar`.`carpool_item` (`carpool_item_id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
